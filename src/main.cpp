@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <memory>
 
 #include "physics_objects.hpp"
 #include "vec2.hpp"
@@ -9,8 +10,9 @@
 int main() {
 	sf::RenderWindow window(sf::VideoMode({WIDTH, HEIGHT}), "Physics Thing");
 
-    Circle sphere1(Pos2(50, 50), Vec2(50, 30), 10, 5);
-    Circle sphere2(Pos2(WIDTH-50, HEIGHT-50), Vec2(-100, -60), 10, 5);
+    Group group;
+    group.add_object(std::make_shared<Circle>(Pos2(0, 0), Vec2(150, 150), 10, 50));
+    group.add_object(std::make_shared<Circle>(Pos2(WIDTH, HEIGHT), Vec2(-300, -75), 10, 50));
 
     sf::Clock clock;
 
@@ -23,13 +25,10 @@ int main() {
 
         sf::Time elapsed = clock.restart();
         double dt = elapsed.asSeconds();
-
-        sphere1.update(dt);
-        sphere2.update(dt);
+        group.update(dt);
 
 		window.clear();
-		window.draw(sphere1);
-		window.draw(sphere2);
+		window.draw(group);
 		window.display();
 	}
 }
