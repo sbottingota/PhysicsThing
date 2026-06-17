@@ -15,37 +15,19 @@ class PhysicsObject : public sf::Drawable {
 
     double mass;
 
-    bool faces(std::shared_ptr<PhysicsObject> other) const {
-        Vec2 displacement = other->position - position;
-        return displacement.dot(velocity) > 0 && displacement.dot(other->velocity) < 0;
-    }
+    bool faces(std::shared_ptr<PhysicsObject> other) const;
 
     public:
     PhysicsObject(Pos2 position, Vec2 velocity, double mass)
         : position(position), velocity(velocity), mass(mass) {}
 
-    void update(double dt) { // dt is the time (in seconds) since the last update
-        position += dt * velocity;
-    }
+
+    void update(double dt); // dt is the time (in seconds) since the last update
+
+    void setVelocity(Vec2 new_velocity);
 
     virtual bool collides(std::shared_ptr<PhysicsObject> other) const = 0;
     virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const = 0;
-
-    Pos2 getPosition() const {
-        return position;
-    }
-
-    Vec2 getVelocity() const {
-        return velocity;
-    }
-
-    double getMass() const {
-        return mass;
-    }
-
-    void setVelocity(Vec2 new_velocity) {
-        velocity = new_velocity;
-    }
 };
 
 class Group : public sf::Drawable {
