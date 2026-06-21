@@ -25,6 +25,7 @@ class Vec2 {
     double dot(Vec2 other) const;
 
     double length() const;
+    double length_squared() const;
 };
 
 Vec2 operator*(double n, Vec2 vec);

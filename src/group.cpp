@@ -11,12 +11,12 @@ void Group::update(double dt) const {
 
     for (auto object1 : objects) {
         for (auto object2 : objects) {
-            if (object1->collides(object2)) {
+            if (collides(object1, object2)) {
                 Vec2 vel1 = object1->handle_collision(object2);
                 Vec2 vel2 = object2->handle_collision(object1);
 
-                object1->setVelocity(vel1);
-                object2->setVelocity(vel2);
+                object1->set_velocity(vel1);
+                object2->set_velocity(vel2);
             }
         }
     }

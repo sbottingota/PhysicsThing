@@ -9,7 +9,14 @@ void PhysicsObject::update(double dt) {
     position += dt * velocity;
 }
 
-void PhysicsObject::setVelocity(Vec2 new_velocity) {
-    velocity = new_velocity;
+Pos2 PhysicsObject::get_position() const {
+    return position;
 }
 
+Vec2 PhysicsObject::get_velocity() const {
+    return velocity;
+}
+
+void PhysicsObject::set_velocity(Vec2 new_velocity) {
+    velocity = new_velocity;
+}

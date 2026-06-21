@@ -51,7 +51,11 @@ double Vec2::dot(Vec2 other) const {
 }
 
 double Vec2::length() const {
-    return std::sqrt(x*x + y*y);
+    return std::sqrt(length_squared());
+}
+
+double Vec2::length_squared() const {
+    return x*x + y*y;
 }
 
 Vec2 operator*(double n, Vec2 vec) {
