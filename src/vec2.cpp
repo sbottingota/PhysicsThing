@@ -62,8 +62,9 @@ double Vec2::angle() const {
     return std::atan2(y, x);
 }
 
-Vec2 Vec2::reflected_over(Vec2 axis) const {
-    return 2 * (dot(axis) / length_squared()) * axis - *this;
+Vec2 Vec2::reflected_over(Vec2 normal) const {
+    normal /= normal.length(); // normalise to a length of 1
+    return *this - 2 * dot(normal) * normal;
 }
 
 Vec2 operator*(double n, Vec2 vec) {
