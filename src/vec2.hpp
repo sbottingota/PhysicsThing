@@ -28,6 +28,8 @@ class Vec2 {
     double length_squared() const;
 
     double angle() const; // in radians
+
+    Vec2 reflected_over(Vec2 axis) const;
 };
 
 Vec2 operator*(double n, Vec2 vec);

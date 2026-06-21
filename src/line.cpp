@@ -25,3 +25,18 @@ void Line::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(line);
 }
 
+Pos2 Line::closest_point_to(Pos2 point) const {
+    double t = (point - position).dot(direction) / direction.length_squared();
+
+    // clamp point between the bounds of the line
+    if (t < 0) { t = 0; }
+    if (t > 1) { t = 1; }
+
+    return position + direction * t;
+}
+
+bool Line::is_faced_by(const PhysicsObject &other) const {
+    Vec2 displacement = other.get_position() - closest_point_to(other.get_position());
+    return displacement.dot(other.get_velocity()) < 0;
+}
+

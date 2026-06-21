@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
+#include <iostream>
 
 #include "physics_objects.hpp"
 #include "vec2.hpp"
@@ -11,8 +12,8 @@ int main() {
 	sf::RenderWindow window(sf::VideoMode({WIDTH, HEIGHT}), "Physics Thing");
 
     Group group;
-    group.add_object(std::make_shared<Circle>(Pos2(0, 0), Vec2(150, 150), 10, 50));
-    group.add_object(std::make_shared<Circle>(Pos2(WIDTH, HEIGHT), Vec2(-300, -75), 10, 50));
+    group.add_object(std::make_shared<Circle>(Pos2(100, 100), Vec2(150, 150), 10, 20));
+    group.add_object(std::make_shared<Circle>(Pos2(WIDTH - 55, HEIGHT - 55), Vec2(-300, -75), 10, 50));
 
     // border
     group.add_object(std::make_shared<Line>(Pos2(0, 0), Pos2(0, HEIGHT)));

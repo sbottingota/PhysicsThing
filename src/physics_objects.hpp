@@ -13,7 +13,7 @@ class PhysicsObject : public sf::Drawable {
     Pos2 position;
     Vec2 velocity;
 
-    double mass;
+    const double mass;
 
     public:
     PhysicsObject(Pos2 position, Vec2 velocity, double mass)
@@ -29,7 +29,11 @@ class PhysicsObject : public sf::Drawable {
 
     virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const = 0;
 
-    bool faces(std::shared_ptr<PhysicsObject> other) const;
+    // for shapes A and B, returns true iff A is faced by B, and B is faced by A
+    bool faces(const PhysicsObject &other) const;
+
+    // this is intended to be overwritten for special cases in subclasses (e.g. lines)
+    virtual bool is_faced_by(const PhysicsObject &other) const;
 };
 
 class Group : public sf::Drawable {
@@ -45,7 +49,7 @@ class Group : public sf::Drawable {
 };
 
 class Circle : public PhysicsObject {
-    double radius;
+    const double radius;
 
     public:
     Circle(Pos2 position, Vec2 velocity, double mass, double radius);
@@ -60,7 +64,7 @@ class Circle : public PhysicsObject {
 class Line : public PhysicsObject {
     constexpr static double thickness = 5;
 
-    Vec2 direction;
+    const Vec2 direction;
 
     public:
     Line(Pos2 point1, Pos2 point2);
@@ -70,6 +74,10 @@ class Line : public PhysicsObject {
     virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const override;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
+    Pos2 closest_point_to(Pos2 point) const;
+
+    virtual bool is_faced_by(const PhysicsObject &other) const;
 };
 
 

@@ -19,6 +19,11 @@ Vec2 Circle::handle_collision(std::shared_ptr<PhysicsObject> other) const {
         double b = (velocity - circle.velocity).dot(position - circle.position) / (position - circle.position).length_squared();
 
         return velocity - a * b * (position - circle.position);
+    } else if (typeid(*other) == typeid(Line)) {
+        Line &line = static_cast<Line&>(*other);
+
+        Pos2 contact = line.closest_point_to(position);
+        return ELASTICITY * velocity.reflected_over(position - contact);
     }
 
     std::clog << "no collision-handling logic defined for '" << typeid(*this).name() << "' and '" << typeid(*other).name() << "'\n";

@@ -9,8 +9,12 @@ void Group::update(double dt) const {
         object->update(dt);
     }
 
-    for (auto object1 : objects) {
-        for (auto object2 : objects) {
+    for (int i = 0; i < objects.size(); ++i) {
+        for (int j = 0; j < objects.size(); ++j) {
+            if (i == j) continue;
+            auto object1 = objects[i];
+            auto object2 = objects[j];
+
             if (collides(object1, object2)) {
                 Vec2 vel1 = object1->handle_collision(object2);
                 Vec2 vel2 = object2->handle_collision(object1);

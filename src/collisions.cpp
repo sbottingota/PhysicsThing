@@ -17,11 +17,6 @@ void add_collision_checker(CollisionChecker checker) {
 }
 
 bool collides(std::shared_ptr<PhysicsObject> object1, std::shared_ptr<PhysicsObject> object2) {
-    // two objects cannot be colliding unless they are moving towards each other
-    if (!object1->faces(object2)) {
-        return false;
-    }
-
     std::pair<std::type_index, std::type_index> types(typeid(*object1), typeid(*object2));
     std::pair<std::type_index, std::type_index> reversed_types(typeid(*object2), typeid(*object1));
 
@@ -29,7 +24,7 @@ bool collides(std::shared_ptr<PhysicsObject> object1, std::shared_ptr<PhysicsObj
         return collision_table.at(types)(*object1, *object2);
 
     } else if (collision_table.find(reversed_types) != collision_table.end()) {
-        return collision_table.at(reversed_types)(*object1, *object2);
+        return collision_table.at(reversed_types)(*object2, *object1);
 
     } else {
         std::clog << "no collision-checking logic defined for '" << typeid(*object1).name() << "' and '" << typeid(*object2).name() << "'\n";
@@ -38,6 +33,10 @@ bool collides(std::shared_ptr<PhysicsObject> object1, std::shared_ptr<PhysicsObj
 }
 
 bool circles_collide(const PhysicsObject &shape1, const PhysicsObject &shape2) {
+    if (!shape1.faces(shape2)) {
+        return false;
+    }
+
     const Circle &circle1 = static_cast<const Circle&>(shape1);
     const Circle &circle2 = static_cast<const Circle&>(shape2);
 
@@ -48,7 +47,11 @@ bool circle_collides_line(const PhysicsObject &shape1, const PhysicsObject &shap
     const Circle &circle = static_cast<const Circle&>(shape1);
     const Line &line = static_cast<const Line&>(shape2);
 
-    return false; // TODO: implement
+    if (!line.is_faced_by(circle)) return false;
+
+    Pos2 closest_point = line.closest_point_to(circle.get_position());
+
+    return (closest_point - circle.get_position()).length() <= circle.get_radius();
 }
 
 bool lines_collide(const PhysicsObject &shape1, const PhysicsObject &shape2) {
@@ -61,6 +64,7 @@ void init_common_collision_checkers() {
     if (!init_finished) {
         add_collision_checker<Circle, Circle>(circles_collide);
         add_collision_checker<Circle, Line>(circle_collides_line);
+        add_collision_checker<Line, Line>(lines_collide);
 
         init_finished = true;
     }
