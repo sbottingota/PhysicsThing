@@ -26,6 +26,8 @@ class Vec2 {
 
     double length() const;
     double length_squared() const;
+
+    double angle() const; // in radians
 };
 
 Vec2 operator*(double n, Vec2 vec);

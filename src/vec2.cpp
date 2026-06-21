@@ -58,6 +58,10 @@ double Vec2::length_squared() const {
     return x*x + y*y;
 }
 
+double Vec2::angle() const {
+    return std::atan2(y, x);
+}
+
 Vec2 operator*(double n, Vec2 vec) {
     return vec * n;
 }
