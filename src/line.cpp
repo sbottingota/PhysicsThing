@@ -16,10 +16,10 @@ Vec2 Line::handle_collision(std::shared_ptr<PhysicsObject> other) const {
 void Line::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     sf::RectangleShape line({direction.length(), thickness});
 
-    Vec2 offset = Vec2(direction.getY(), -direction.getX()) / direction.length();
+    Vec2 offset = Vec2(direction.get_y(), -direction.get_x()) / direction.length();
     offset *= thickness / 2;
 
-    line.setPosition({position.getX() + offset.getX(), position.getY() + offset.getY()});
+    line.setPosition({position.get_x() + offset.get_x(), position.get_y() + offset.get_y()});
     line.rotate(sf::radians(direction.angle()));
 
     target.draw(line);

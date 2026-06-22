@@ -4,7 +4,7 @@ void Group::add_object(std::shared_ptr<PhysicsObject> object) {
     objects.push_back(object);
 }
 
-void Group::update(double dt) const {
+void Group::update(float dt) const {
     for (auto object : objects) {
         object->update(dt);
     }
@@ -26,9 +26,16 @@ void Group::update(double dt) const {
     }
 }
 
-void Group::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+void Group::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     for (auto object : objects) {
         target.draw(*object);
+    }
+
+    // draw these last, so that they are on top of all the other objects
+    if (draw_velocities) {
+        for (auto object : objects) {
+            object->draw_velocity(target, states);
+        }
     }
 }
 

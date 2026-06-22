@@ -1,0 +1,38 @@
+#include "physics_objects.hpp"
+
+#include <iostream>
+
+bool PhysicsObject::faces(const PhysicsObject &other) const {
+    return is_faced_by(other) || other.is_faced_by(*this);
+}
+
+void PhysicsObject::update(double dt) { 
+    position += dt * velocity;
+}
+
+Pos2 PhysicsObject::get_position() const {
+    return position;
+}
+
+Vec2 PhysicsObject::get_velocity() const {
+    return velocity;
+}
+
+void PhysicsObject::set_velocity(Vec2 new_velocity) {
+    velocity = new_velocity;
+}
+
+void PhysicsObject::draw_velocity(sf::RenderTarget &target, sf::RenderStates states) const {
+    // if velocity is 0, don't draw an arrow at all
+    if (velocity.length() <= 1e-5) return;
+
+    sf::RectangleShape tail({arrow_width, velocity.length() * arrow_scale});
+
+    Vec2 tail_offset = arrow_width/2 * velocity / velocity.length();
+    tail.setPosition({position.getX() + tail_offset.getX(), position.getY() + tail_offset.getY()});
+
+    tail.setFillColor(arrow_color);
+
+    target.draw(tail);
+}
+

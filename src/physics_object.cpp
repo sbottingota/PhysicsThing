@@ -1,10 +1,12 @@
 #include "physics_objects.hpp"
 
+#include <iostream>
+
 bool PhysicsObject::faces(const PhysicsObject &other) const {
     return is_faced_by(other) || other.is_faced_by(*this);
 }
 
-void PhysicsObject::update(double dt) { 
+void PhysicsObject::update(float dt) { 
     position += dt * velocity;
 }
 
@@ -19,3 +21,35 @@ Vec2 PhysicsObject::get_velocity() const {
 void PhysicsObject::set_velocity(Vec2 new_velocity) {
     velocity = new_velocity;
 }
+
+void PhysicsObject::draw_velocity(sf::RenderTarget &target, sf::RenderStates states) const {
+    // if velocity is 0, don't draw an arrow at all
+    if (velocity.length() <= 1e-5) return;
+
+    sf::RectangleShape tail({arrow_width, velocity.length() * arrow_scale});
+
+    Vec2 tail_offset = arrow_width/2 * Vec2(velocity.get_y(), -velocity.get_x()) / velocity.length();
+    tail.setPosition({position.get_x() - tail_offset.get_x(), position.get_y() - tail_offset.get_y()});
+
+    tail.setRotation(sf::radians(velocity.angle()) - sf::degrees(90)); // SFML angles have a different starting point, so subtract 90deg to make it line up
+    tail.setFillColor(arrow_color);
+
+    Pos2 base = position + velocity * arrow_scale;
+    sf::ConvexShape head;
+
+    head.setPosition({base.get_x(), base.get_y()});
+
+    head.setPointCount(3);
+    head.setPoint(0, {base.get_x() - arrow_width * 2, base.get_y()});
+    head.setPoint(1, {base.get_x() + arrow_width * 2, base.get_y()});
+    head.setPoint(2, {base.get_x(), base.get_y() + arrow_width * 2});
+
+    head.setFillColor(arrow_color);
+
+    head.setOrigin({base.get_x(), base.get_y()});
+    head.setRotation(sf::radians(velocity.angle()) - sf::degrees(90));
+
+    target.draw(tail);
+    target.draw(head);
+}
+

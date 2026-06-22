@@ -6,32 +6,32 @@ class Vec2;
 typedef Vec2 Pos2; 
 
 class Vec2 {
-    double x, y;
+    float x, y;
 
     public:
-    Vec2(double x, double y) : x(x), y(y) {}
+    Vec2(float x, float y) : x(x), y(y) {}
 
-    double getX() const;
-    double getY() const;
+    float get_x() const;
+    float get_y() const;
 
     Vec2 operator+(Vec2 other) const;
     Vec2 operator-(Vec2 other) const;
 
-    Vec2 operator*(double n) const;
-    Vec2 operator/(double n) const;
+    Vec2 operator*(float n) const;
+    Vec2 operator/(float n) const;
 
     void operator+=(Vec2 other);
     void operator-=(Vec2 other);
 
-    void operator*=(double n);
-    void operator/=(double n);
+    void operator*=(float n);
+    void operator/=(float n);
 
-    double dot(Vec2 other) const;
+    float dot(Vec2 other) const;
 
-    double length() const;
-    double length_squared() const;
+    float length() const;
+    float length_squared() const;
 
-    double angle() const; // in radians
+    float angle() const; // in radians
 
     Vec2 reflected_over(Vec2 normal) const;
     
@@ -42,6 +42,6 @@ class Vec2 {
     Pos2 closest_point_on_line_clamped(Pos2 start, Vec2 direction) const;
 };
 
-Vec2 operator*(double n, Vec2 vec);
+Vec2 operator*(float n, Vec2 vec);
 
 #endif

@@ -37,7 +37,7 @@ int main() {
 		}
 
         sf::Time elapsed = clock.restart();
-        double dt = elapsed.asSeconds();
+        float dt = elapsed.asSeconds();
         group.update(dt);
 
 		window.clear();

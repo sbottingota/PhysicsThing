@@ -5,7 +5,7 @@
 #include <typeinfo>
 
 
-Circle::Circle(Pos2 position, Vec2 velocity, double mass, double radius)
+Circle::Circle(Pos2 position, Vec2 velocity, float mass, float radius)
     : PhysicsObject(position, velocity, mass), radius(radius) {
     init_common_collision_checkers();
 }
@@ -20,8 +20,8 @@ Vec2 Circle::handle_collision(std::shared_ptr<PhysicsObject> other) const {
         Circle &circle = static_cast<Circle&>(*other);
 
         // taken from here: https://en.wikipedia.org/wiki/Elastic_collision#Two-dimensional_collision_with_two_moving_objects
-        double a = ((1 + ELASTICITY) * circle.mass) / (mass + circle.mass);
-        double b = (velocity - circle.velocity).dot(position - circle.position) / (position - circle.position).length_squared();
+        float a = ((1 + ELASTICITY) * circle.mass) / (mass + circle.mass);
+        float b = (velocity - circle.velocity).dot(position - circle.position) / (position - circle.position).length_squared();
 
         return velocity - a * b * (position - circle.position);
     } else if (typeid(*other) == typeid(Line)) {
@@ -35,14 +35,14 @@ Vec2 Circle::handle_collision(std::shared_ptr<PhysicsObject> other) const {
     std::exit(1);
 }
 
-void Circle::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+void Circle::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     sf::CircleShape screen_object(radius);
-    screen_object.setPosition({position.getX() - radius, position.getY() - radius});
+    screen_object.setPosition({position.get_x() - radius, position.get_y() - radius});
 
     target.draw(screen_object, states);
 }
 
-double Circle::get_radius() const {
+float Circle::get_radius() const {
     return radius;
 }
 

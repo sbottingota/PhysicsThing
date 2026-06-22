@@ -13,14 +13,18 @@ class PhysicsObject : public sf::Drawable {
     Pos2 position;
     Vec2 velocity;
 
-    const double mass;
+    const float mass;
 
     public:
-    PhysicsObject(Pos2 position, Vec2 velocity, double mass)
+    constexpr static sf::Color arrow_color = sf::Color::Red;
+    constexpr static float arrow_width = 10.0;
+    constexpr static float arrow_scale = 0.5;
+
+    PhysicsObject(Pos2 position, Vec2 velocity, float mass)
         : position(position), velocity(velocity), mass(mass) {}
 
 
-    virtual void update(double dt); // dt is the time (in seconds) since the last update
+    virtual void update(float dt); // dt is the time (in seconds) since the last update
 
     Pos2 get_position() const;
     Vec2 get_velocity() const;
@@ -33,43 +37,47 @@ class PhysicsObject : public sf::Drawable {
     bool faces(const PhysicsObject &other) const;
 
     virtual bool is_faced_by(const PhysicsObject &other) const = 0;
+
+    virtual void draw_velocity(sf::RenderTarget &target, sf::RenderStates states) const;
 };
 
 class Group : public sf::Drawable {
     std::vector<std::shared_ptr<PhysicsObject>> objects;
 
     public:
+    constexpr static bool draw_velocities = true;
+
     Group() {}
 
     void add_object(std::shared_ptr<PhysicsObject> object);
-    void update(double dt) const;
+    void update(float dt) const;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 
 class Circle : public PhysicsObject {
-    const double radius;
+    const float radius;
 
     public:
-    Circle(Pos2 position, Vec2 velocity, double mass, double radius);
+    Circle(Pos2 position, Vec2 velocity, float mass, float radius);
 
     virtual bool is_faced_by(const PhysicsObject &other) const;
     virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const override;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-    double get_radius() const;
+    float get_radius() const;
 };
 
 class Line : public PhysicsObject {
-    constexpr static double thickness = 5;
+    constexpr static float thickness = 5;
 
     const Vec2 direction;
 
     public:
     Line(Pos2 point1, Pos2 point2);
 
-    virtual void update(double dt) override {} // as lines are stationary, override update() to be a no-op
+    virtual void update(float dt) override {} // as lines are stationary, override update() to be a no-op
 
     virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const override;
 
