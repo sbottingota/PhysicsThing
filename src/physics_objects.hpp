@@ -32,8 +32,7 @@ class PhysicsObject : public sf::Drawable {
     // for shapes A and B, returns true iff A is faced by B, and B is faced by A
     bool faces(const PhysicsObject &other) const;
 
-    // this is intended to be overwritten for special cases in subclasses (e.g. lines)
-    virtual bool is_faced_by(const PhysicsObject &other) const;
+    virtual bool is_faced_by(const PhysicsObject &other) const = 0;
 };
 
 class Group : public sf::Drawable {
@@ -54,6 +53,7 @@ class Circle : public PhysicsObject {
     public:
     Circle(Pos2 position, Vec2 velocity, double mass, double radius);
 
+    virtual bool is_faced_by(const PhysicsObject &other) const;
     virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const override;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

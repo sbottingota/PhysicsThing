@@ -10,6 +10,11 @@ Circle::Circle(Pos2 position, Vec2 velocity, double mass, double radius)
     init_common_collision_checkers();
 }
 
+bool Circle::is_faced_by(const PhysicsObject &other) const {
+    Pos2 closest_point = position.closest_point_on_line(other.get_position(), other.get_velocity());
+    return (closest_point - position).length() <= radius;
+}
+
 Vec2 Circle::handle_collision(std::shared_ptr<PhysicsObject> other) const {
     if (typeid(*other) == typeid(Circle)) {
         Circle &circle = static_cast<Circle&>(*other);

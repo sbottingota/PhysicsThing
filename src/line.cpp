@@ -26,13 +26,7 @@ void Line::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 Pos2 Line::closest_point_to(Pos2 point) const {
-    double t = (point - position).dot(direction) / direction.length_squared();
-
-    // clamp point between the bounds of the line
-    if (t < 0) { t = 0; }
-    if (t > 1) { t = 1; }
-
-    return position + direction * t;
+    return point.closest_point_on_line_clamped(position, direction);
 }
 
 bool Line::is_faced_by(const PhysicsObject &other) const {

@@ -33,12 +33,12 @@ bool collides(std::shared_ptr<PhysicsObject> object1, std::shared_ptr<PhysicsObj
 }
 
 bool circles_collide(const PhysicsObject &shape1, const PhysicsObject &shape2) {
-    if (!shape1.faces(shape2)) {
-        return false;
-    }
-
     const Circle &circle1 = static_cast<const Circle&>(shape1);
     const Circle &circle2 = static_cast<const Circle&>(shape2);
+
+    if (!(circle1.is_faced_by(circle2) || circle2.is_faced_by(circle1))) {
+        return false;
+    }
 
     return (circle1.get_position() - circle2.get_position()).length() <= circle1.get_radius() + circle2.get_radius();
 }

@@ -67,6 +67,24 @@ Vec2 Vec2::reflected_over(Vec2 normal) const {
     return *this - 2 * dot(normal) * normal;
 }
 
+Pos2 Vec2::closest_point_on_line(Pos2 start, Vec2 direction) const {
+    double t = (*this - start).dot(direction) / direction.length_squared();
+
+    if (t < 0) { t = 0; }
+
+    return start + direction * t;
+}
+
+Pos2 Vec2::closest_point_on_line_clamped(Pos2 start, Vec2 direction) const {
+    double t = (*this - start).dot(direction) / direction.length_squared();
+
+    // clamp point between the bounds of the line
+    if (t < 0) { t = 0; }
+    if (t > 1) { t = 1; }
+
+    return start + direction * t;
+}
+
 Vec2 operator*(double n, Vec2 vec) {
     return vec * n;
 }
