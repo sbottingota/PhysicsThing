@@ -9,10 +9,11 @@ Circle::Circle(Pos2 position, Vec2 velocity, float mass, float radius)
     : PhysicsObject(position, velocity, mass), radius(radius) {
     init_common_collision_checkers();
 }
-
 bool Circle::is_faced_by(const PhysicsObject &other) const {
-    Pos2 closest_point = position.closest_point_on_line(other.get_position(), other.get_velocity());
-    return (closest_point - position).length() <= radius;
+    Pos2 relative_pos = position - other.get_position();
+    Vec2 relative_vel = other.get_velocity() - velocity;
+
+    return relative_pos.dot(relative_vel) > 0;
 }
 
 Vec2 Circle::handle_collision(std::shared_ptr<PhysicsObject> other) const {
