@@ -61,7 +61,7 @@ class Circle : public PhysicsObject {
     public:
     Circle(Pos2 position, Vec2 velocity, float mass, float radius);
 
-    virtual bool is_faced_by(const PhysicsObject &other) const;
+    virtual bool is_faced_by(const PhysicsObject &other) const override;
     virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const override;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
@@ -85,7 +85,7 @@ class Line : public PhysicsObject {
 
     Pos2 closest_point_to(Pos2 point) const;
 
-    virtual bool is_faced_by(const PhysicsObject &other) const;
+    virtual bool is_faced_by(const PhysicsObject &other) const override;
 };
 
 

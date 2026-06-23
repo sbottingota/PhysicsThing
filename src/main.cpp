@@ -4,12 +4,16 @@
 
 #include "physics_objects.hpp"
 #include "vec2.hpp"
+#include "gui.hpp"
 
 #define WIDTH 1280
 #define HEIGHT 720
 
 int main() {
-	sf::RenderWindow window(sf::VideoMode({WIDTH, HEIGHT}), "Physics Thing");
+	sf::RenderWindow simulation(sf::VideoMode({WIDTH, HEIGHT}), "Physics Thing");
+
+    GUI gui = create_simulation_gui();
+    sf::RenderWindow &gui_window = gui.get_render_window();
 
     Group group;
 
@@ -29,10 +33,11 @@ int main() {
 
     sf::Clock clock;
 
-	while (window.isOpen()) {
-		while (const std::optional event = window.pollEvent()) {
+	while (simulation.isOpen() && gui_window.isOpen()) {
+		while (const std::optional event = simulation.pollEvent()) {
 			if (event->is<sf::Event::Closed>()) {
-				window.close();
+				simulation.close();
+                gui_window.close();
             }
 		}
 
@@ -40,9 +45,11 @@ int main() {
         float dt = elapsed.asSeconds();
         group.update(dt);
 
-		window.clear();
-		window.draw(group);
-		window.display();
+		simulation.clear();
+		simulation.draw(group);
+		simulation.display();
+
+        gui.update(dt);
 	}
 }
 
