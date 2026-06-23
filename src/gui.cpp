@@ -2,8 +2,9 @@
 
 #include <iostream>
 
-GUI::GUI(int width, int height, std::string window_name) {
-    gui_window = sf::RenderWindow(sf::VideoMode({width, height}), window_name);
+GUI::GUI(unsigned int width, unsigned int height, std::string window_name) {
+    gui_window = sf::RenderWindow(sf::VideoMode({width, height}), window_name,
+        sf::Style::Titlebar | sf::Style::Close);
 }
 
 void GUI::add_component(std::shared_ptr<GUIComponent> component) {
@@ -41,6 +42,9 @@ GUI create_simulation_gui() {
     auto button = std::make_shared<Button>("Add Shape", PADDING, PADDING, GUI_WIDTH - 2 * PADDING, 40);
     button->set_action([]() {std::cout << "Clicked!\n"; });
     gui.add_component(button);
+
+    auto number_input = std::make_shared<NumberInput>(PADDING, PADDING * 4, GUI_WIDTH - 2 * PADDING, 40);
+    gui.add_component(number_input);
 
     return gui;
 }

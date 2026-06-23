@@ -42,6 +42,7 @@ void Button::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
     sf::Text text_object(font, text);
     text_object.setPosition({x, y});
+    text_object.setFillColor(text_color);
     target.draw(text_object);
 }
 
