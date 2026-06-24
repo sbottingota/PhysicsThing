@@ -25,7 +25,7 @@ void GUI::update(float dt) {
     }
 
     for (auto component : components) {
-        component->update(dt);
+        component->update(dt, *this);
         gui_window.draw(*component);
     }
 

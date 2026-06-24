@@ -24,6 +24,8 @@ const sf::Color interacted_color(80, 80, 80); // darker gray
 
 const float border_thickness = 2;
 
+class GUI;
+
 class GUIComponent : public sf::Drawable {
     protected:
     float x, y;
@@ -34,11 +36,13 @@ class GUIComponent : public sf::Drawable {
 
     // to be overwritten in subclasses
     virtual void handle_event(const sf::Event &event) {}
-    virtual void update(float dt) {}
+    virtual void update(float dt, GUI &gui) {}
 };
 
 class Button : public GUIComponent {
     constexpr static float animation_time = 0.3; // the time that the "button press" animation takes, in seconds
+
+    std::optional<sf::Cursor::Type> cursor_type;
 
     std::string text;
     std::function<void()> action;
@@ -52,7 +56,7 @@ class Button : public GUIComponent {
     void set_action(std::function<void()> action);
 
     virtual void handle_event(const sf::Event &event) override;
-    virtual void update(float dt) override;
+    virtual void update(float dt, GUI &gui) override;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
@@ -67,7 +71,6 @@ class NumberInput : public GUIComponent {
     float get_number() const;
 
     virtual void handle_event(const sf::Event &event) override;
-    virtual void update(float dt) override {}
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
