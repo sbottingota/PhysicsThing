@@ -27,22 +27,21 @@ const float border_thickness = 2;
 class GUI;
 
 class GUIComponent : public sf::Drawable {
-    protected:
-    float x, y;
-    float width, height;
-
     public:
+    const float x, y;
+    const float width, height;
+
     GUIComponent(float x, float y, float width, float height) : x(x), y(y), width(width), height(height) {}
 
     // to be overwritten in subclasses
     virtual void handle_event(const sf::Event &event) {}
-    virtual void update(float dt, GUI &gui) {}
+    virtual void update(float dt) {}
+
+    virtual sf::Cursor::Type mouse_type() const { return sf::Cursor::Type::Arrow; }
 };
 
 class Button : public GUIComponent {
     constexpr static float animation_time = 0.3; // the time that the "button press" animation takes, in seconds
-
-    std::optional<sf::Cursor::Type> cursor_type;
 
     std::string text;
     std::function<void()> action;
@@ -51,14 +50,16 @@ class Button : public GUIComponent {
 
     public:
     Button(std::string text, float x, float y, float width, float height)
-        : text(text), GUIComponent(x, y, width, height) {}
+        : GUIComponent(x, y, width, height), text(text) {}
 
     void set_action(std::function<void()> action);
 
     virtual void handle_event(const sf::Event &event) override;
-    virtual void update(float dt, GUI &gui) override;
+    virtual void update(float dt) override;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
+    virtual sf::Cursor::Type mouse_type() const { return sf::Cursor::Type::Hand; }
 };
 
 class NumberInput : public GUIComponent {
@@ -73,11 +74,17 @@ class NumberInput : public GUIComponent {
     virtual void handle_event(const sf::Event &event) override;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
+    virtual sf::Cursor::Type mouse_type() const { return sf::Cursor::Type::Text; }
 };
 
 class GUI {
+    const static sf::Cursor::Type default_cursor_type = sf::Cursor::Type::Arrow;
+
     sf::RenderWindow gui_window;
     std::vector<std::shared_ptr<GUIComponent>> components;
+
+    std::optional<sf::Cursor> cursor = sf::Cursor::createFromSystem(default_cursor_type);
 
     public:
     GUI(unsigned int width, unsigned int height, std::string window_name);

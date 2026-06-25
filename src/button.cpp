@@ -20,32 +20,11 @@ void Button::handle_event(const sf::Event &event) {
                 pressed_time = animation_time;
             }
         }
-    } else if (const auto mouse_move = event.getIf<sf::Event::MouseMoved>()) {
-        int move_x = mouse_move->position.x;
-        int move_y = mouse_move->position.y;
+    } }
 
-        // check whether the mouse has moved to within the bounds of the button
-        // and change the look of the cursor correspondingly
-        if (x < move_x && move_x < x + width
-            && y < move_y && move_y < y + height) {
-            cursor_type = sf::Cursor::Type::Hand;
-        } else {
-            cursor_type = sf::Cursor::Type::Arrow;
-        }
-    }
-}
-
-void Button::update(float dt, GUI &gui) {
+void Button::update(float dt) {
     if (pressed_time > 0) {
         pressed_time -= dt;
-    }
-
-    if (cursor_type.has_value()) {
-        if (const auto cursor = sf::Cursor::createFromSystem(*cursor_type)) {
-            gui.get_render_window().setMouseCursor(*cursor);
-        }
-
-        cursor_type = {};
     }
 }
 
