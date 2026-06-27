@@ -9,8 +9,8 @@ void Group::update(float dt) const {
         object->update(dt);
     }
 
-    for (int i = 0; i < objects.size(); ++i) {
-        for (int j = 0; j < objects.size(); ++j) {
+    for (size_t i = 0; i < objects.size(); ++i) {
+        for (size_t j = 0; j < objects.size(); ++j) {
             if (i == j) continue;
             auto object1 = objects[i];
             auto object2 = objects[j];

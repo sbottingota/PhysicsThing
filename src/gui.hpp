@@ -9,11 +9,6 @@
 #include <functional>
 #include <optional>
 
-#define GUI_WIDTH 300
-#define GUI_HEIGHT 720
-
-#define PADDING (GUI_WIDTH / 15)
-
 const sf::Font font("times-new-roman.otf");
 
 const sf::Color bg_color = sf::Color::White;
@@ -66,16 +61,29 @@ class NumberInput : public GUIComponent {
     std::string text = "";
     bool in_focus = false;
 
-    public:
-    NumberInput(float x, float y, float width, float height) : GUIComponent(x, y, width, height) {}
+    sf::RectangleShape box;
+    sf::Text text_object = sf::Text(font);
 
-    float get_number() const;
+    public:
+    NumberInput(float x, float y, float width, float height);
+
+    std::optional<float> get_number() const;
 
     virtual void handle_event(const sf::Event &event) override;
+    virtual void update(float dt) override;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
     virtual sf::Cursor::Type mouse_type() const { return sf::Cursor::Type::Text; }
+};
+
+class Label : public GUIComponent {
+    sf::Text text_object = sf::Text(font);
+
+    public:
+    Label(std::string text, float x, float y);
+
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 
 class GUI {
@@ -95,7 +103,5 @@ class GUI {
 
     sf::RenderWindow &get_render_window();
 };
-
-GUI create_simulation_gui();
 
 #endif

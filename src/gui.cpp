@@ -60,16 +60,3 @@ sf::RenderWindow &GUI::get_render_window() {
     return gui_window;
 }
 
-GUI create_simulation_gui() {
-    GUI gui(GUI_WIDTH, GUI_HEIGHT, "Physics Thing GUI");
-
-    auto button = std::make_shared<Button>("Add Shape", PADDING, PADDING, GUI_WIDTH - 2 * PADDING, 40);
-    button->set_action([]() {std::cout << "Clicked!\n"; });
-    gui.add_component(button);
-
-    auto number_input = std::make_shared<NumberInput>(PADDING, PADDING * 4, GUI_WIDTH - 2 * PADDING, 40);
-    gui.add_component(number_input);
-
-    return gui;
-}
-

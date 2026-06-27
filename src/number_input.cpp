@@ -20,8 +20,28 @@ std::optional<char> scancode_to_digit(Scancode scancode) {
     return {};
 }
 
-float NumberInput::get_number() const {
-    return std::stof(text);
+
+NumberInput::NumberInput(float x, float y, float width, float height)
+    : GUIComponent(x, y, width, height) {
+
+    box = sf::RectangleShape({width, height});
+    box.setPosition({x, y});
+
+    box.setFillColor(bg_color);
+    box.setOutlineThickness(border_thickness);
+    box.setOutlineColor(border_color);
+
+    text_object = sf::Text(font);
+    text_object.setPosition({x, y});
+    text_object.setFillColor(text_color);
+}
+
+std::optional<float> NumberInput::get_number() const {
+    if (text.empty()) {
+        return {};
+    } else {
+        return std::stof(text);
+    }
 }
 
 void NumberInput::handle_event(const sf::Event &event) {
@@ -52,20 +72,21 @@ void NumberInput::handle_event(const sf::Event &event) {
     }
 }
 
+void NumberInput::update(float dt) {
+    text_object.setString(text);
+
+    // make sure that the resulting text can actually fit within the box
+    while (text_object.getLocalBounds().size.x >= box.getLocalBounds().size.x) {
+        text.pop_back();
+        text_object.setString(text);
+    }
+
+}
+
 void NumberInput::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    sf::RectangleShape box({width, height});
-    box.setPosition({x, y});
-
-    box.setFillColor(bg_color);
-    box.setOutlineThickness(border_thickness);
-    box.setOutlineColor(border_color);
-
     target.draw(box);
 
     if (!text.empty()) {
-        sf::Text text_object(font, text);
-        text_object.setPosition({x, y});
-        text_object.setFillColor(text_color);
         target.draw(text_object);
     }
 }
