@@ -28,7 +28,7 @@ GUI create_simulation_gui(Group &simulation_group) {
     gui.add_component(y_input);
 
     auto button = std::make_shared<Button>("Add Circle", PADDING, PADDING * 8, GUI_WIDTH - 2 * PADDING, 40);
-    button->set_action([=]() mutable {
+    button->set_action([x_input, y_input, &simulation_group]() mutable {
         std::optional<float> x = x_input->get_number();
         std::optional<float> y = y_input->get_number();
 

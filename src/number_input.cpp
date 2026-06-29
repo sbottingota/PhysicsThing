@@ -23,7 +23,6 @@ std::optional<char> scancode_to_digit(Scancode scancode) {
 
 NumberInput::NumberInput(float x, float y, float width, float height)
     : GUIComponent(x, y, width, height) {
-
     box = sf::RectangleShape({width, height});
     box.setPosition({x, y});
 
@@ -75,11 +74,13 @@ void NumberInput::handle_event(const sf::Event &event) {
 void NumberInput::update(float dt) {
     text_object.setString(text);
 
+    /*
     // make sure that the resulting text can actually fit within the box
     while (text_object.getLocalBounds().size.x >= box.getLocalBounds().size.x) {
         text.pop_back();
         text_object.setString(text);
     }
+    */
 
 }
 
