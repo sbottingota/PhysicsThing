@@ -19,20 +19,32 @@ const sf::Color interacted_color(80, 80, 80); // darker gray
 
 const float border_thickness = 2;
 
-class GUI;
+const float font_size_multiplier = 0.9; // proportion of the height of an object that text should take up
+
+struct Bounds {
+    float x, y;
+    float width, height;
+
+    Bounds() : x(0), y(0), width(0), height(0) {}
+    Bounds(float x, float y, float width, float height) : x(x), y(y), width(width), height(height) {}
+};
+
 
 class GUIComponent : public sf::Drawable {
-    public:
-    const float x, y;
-    const float width, height;
+    protected:
+    Bounds bounds;
 
-    GUIComponent(float x, float y, float width, float height) : x(x), y(y), width(width), height(height) {}
+    public:
+    void set_bounds(Bounds bounds);
 
     // to be overwritten in subclasses
     virtual void handle_event(const sf::Event &event) {}
     virtual void update(float dt) {}
 
     virtual sf::Cursor::Type mouse_type() const { return sf::Cursor::Type::Arrow; }
+
+    float x() const { return bounds.x; }
+    float y() const { return bounds.y; }
 };
 
 class Button : public GUIComponent {
@@ -44,8 +56,7 @@ class Button : public GUIComponent {
     float pressed_time = 0;
 
     public:
-    Button(std::string text, float x, float y, float width, float height)
-        : GUIComponent(x, y, width, height), text(text) {}
+    Button(std::string text) : text(text) {}
 
     void set_action(std::function<void()> action);
 
@@ -61,11 +72,8 @@ class NumberInput : public GUIComponent {
     std::string text = "";
     bool in_focus = false;
 
-    sf::RectangleShape box;
-    sf::Text text_object = sf::Text(font);
-
     public:
-    NumberInput(float x, float y, float width, float height);
+    NumberInput() {}
 
     std::optional<float> get_number() const;
 
@@ -78,26 +86,51 @@ class NumberInput : public GUIComponent {
 };
 
 class Label : public GUIComponent {
-    sf::Text text_object = sf::Text(font);
+    std::string text;
 
     public:
-    Label(std::string text, float x, float y);
+    Label(std::string text) : text(text) {}
+
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+};
+
+class GUIRow : public sf::Drawable {
+    static constexpr float padding_proportion = 0.1; // the portion of the width that each area of padding takes up
+
+    size_t n_components;
+    std::vector<std::shared_ptr<GUIComponent>> components;
+
+    Bounds bounds;
+
+    void update_component_bounds() const;
+
+    public:
+    GUIRow(size_t n_components);
+    GUIRow(std::vector<std::shared_ptr<GUIComponent>> components) : components(components) {}
+
+
+    void add_component(std::shared_ptr<GUIComponent> component, size_t idx);
+    void set_bounds(Bounds bounds);
+
+    // these just pass the method call onto the respective components
+    void update(float dt);
+    void handle_event(const sf::Event &event);
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 
 class GUI {
-    const static sf::Cursor::Type default_cursor_type = sf::Cursor::Type::Arrow;
+    static const sf::Cursor::Type default_cursor_type = sf::Cursor::Type::Arrow;
 
     sf::RenderWindow gui_window;
-    std::vector<std::shared_ptr<GUIComponent>> components;
+    std::vector<GUIRow> rows;
 
     std::optional<sf::Cursor> cursor = sf::Cursor::createFromSystem(default_cursor_type);
 
     public:
     GUI(unsigned int width, unsigned int height, std::string window_name);
 
-    void add_component(std::shared_ptr<GUIComponent> component);
+    void add_row(GUIRow row);
 
     void update(float dt);
 

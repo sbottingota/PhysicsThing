@@ -13,8 +13,8 @@ void Button::handle_event(const sf::Event &event) {
             int click_y = mouse_press->position.y;
 
             // if the click event is within the bounds of the button, run the corresponding action
-            if (x < click_x && click_x < x + width
-                && y < click_y && click_y < y + height) {
+            if (bounds.x < click_x && click_x < bounds.x + bounds.width
+                && bounds.y < click_y && click_y < bounds.y + bounds.height) {
                 action();
 
                 pressed_time = animation_time;
@@ -29,8 +29,8 @@ void Button::update(float dt) {
 }
 
 void Button::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    sf::RectangleShape button({width, height});
-    button.setPosition({x, y});
+    sf::RectangleShape button({bounds.width, bounds.height});
+    button.setPosition({bounds.x, bounds.y});
 
     if (pressed_time <= 0) {
         button.setFillColor(fg_color);
@@ -41,8 +41,9 @@ void Button::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(button);
 
     sf::Text text_object(font, text);
-    text_object.setPosition({x, y});
+    text_object.setPosition({bounds.x, bounds.y});
     text_object.setFillColor(text_color);
+    text_object.setCharacterSize(font_size_multiplier * bounds.height);
     target.draw(text_object);
 }
 

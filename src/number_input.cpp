@@ -20,21 +20,6 @@ std::optional<char> scancode_to_digit(Scancode scancode) {
     return {};
 }
 
-
-NumberInput::NumberInput(float x, float y, float width, float height)
-    : GUIComponent(x, y, width, height) {
-    box = sf::RectangleShape({width, height});
-    box.setPosition({x, y});
-
-    box.setFillColor(bg_color);
-    box.setOutlineThickness(border_thickness);
-    box.setOutlineColor(border_color);
-
-    text_object = sf::Text(font);
-    text_object.setPosition({x, y});
-    text_object.setFillColor(text_color);
-}
-
 std::optional<float> NumberInput::get_number() const {
     if (text.empty()) {
         return {};
@@ -50,8 +35,8 @@ void NumberInput::handle_event(const sf::Event &event) {
             int click_y = mouse_press->position.y;
 
             // set in_focus to whether the mouse click is inside the bounding box
-            in_focus = (x < click_x && click_x < x + width
-                && y < click_y && click_y < y + height);
+            in_focus = (bounds.x < click_x && click_x < bounds.x + bounds.width
+                && bounds.y < click_y && click_y < bounds.y + bounds.height);
         }
     } else if (const auto *keypress = event.getIf<sf::Event::KeyPressed>()) {
         if (keypress && in_focus) {
@@ -72,8 +57,6 @@ void NumberInput::handle_event(const sf::Event &event) {
 }
 
 void NumberInput::update(float dt) {
-    text_object.setString(text);
-
     /*
     // make sure that the resulting text can actually fit within the box
     while (text_object.getLocalBounds().size.x >= box.getLocalBounds().size.x) {
@@ -85,6 +68,21 @@ void NumberInput::update(float dt) {
 }
 
 void NumberInput::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    sf::RectangleShape box({bounds.width, bounds.height});
+    box.setPosition({bounds.x, bounds.y});
+
+    box.setFillColor(bg_color);
+    box.setOutlineThickness(border_thickness);
+    box.setOutlineColor(border_color);
+
+    sf::Text text_object(font);
+
+    text_object.setPosition({bounds.x, bounds.y});
+    text_object.setFillColor(text_color);
+    text_object.setCharacterSize(font_size_multiplier * bounds.height);
+
+    text_object.setString(text);
+
     target.draw(box);
 
     if (!text.empty()) {
