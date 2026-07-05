@@ -57,25 +57,12 @@ void NumberInput::handle_event(const sf::Event &event) {
 }
 
 void NumberInput::update(float dt) {
-    /*
-    // make sure that the resulting text can actually fit within the box
-    while (text_object.getLocalBounds().size.x >= box.getLocalBounds().size.x) {
-        text.pop_back();
-        text_object.setString(text);
-    }
-    */
-
-}
-
-void NumberInput::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    sf::RectangleShape box({bounds.width, bounds.height});
     box.setPosition({bounds.x, bounds.y});
+    box.setSize({bounds.width, bounds.height});
 
     box.setFillColor(bg_color);
     box.setOutlineThickness(border_thickness);
     box.setOutlineColor(border_color);
-
-    sf::Text text_object(font);
 
     text_object.setPosition({bounds.x, bounds.y});
     text_object.setFillColor(text_color);
@@ -83,6 +70,15 @@ void NumberInput::draw(sf::RenderTarget& target, sf::RenderStates states) const 
 
     text_object.setString(text);
 
+    // make sure that the resulting text can actually fit within the box
+    while (text_object.getLocalBounds().size.x >= box.getLocalBounds().size.x) {
+        text.pop_back();
+        text_object.setString(text);
+    }
+
+}
+
+void NumberInput::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(box);
 
     if (!text.empty()) {

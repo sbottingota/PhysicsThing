@@ -1,7 +1,7 @@
 #include "simulation.hpp"
 
 GUI create_simulation_gui(float width, Group &simulation_group) {
-    const float height = width * 10;
+    const float height = width / 1.5;
 
     GUI gui(width, height, "Physics Thing GUI");
 
@@ -10,11 +10,11 @@ GUI create_simulation_gui(float width, Group &simulation_group) {
 
     auto x_label = std::make_shared<Label>("X:");
     auto x_input = std::make_shared<NumberInput>();
+    gui.add_row(GUIRow({x_label, x_input}));
 
     auto y_label = std::make_shared<Label>("Y:");
     auto y_input = std::make_shared<NumberInput>();
-
-    gui.add_row(GUIRow({x_label, x_input, y_label, y_input}));
+    gui.add_row(GUIRow({y_label, y_input}));
 
     auto button = std::make_shared<Button>("Add Circle");
     button->set_action([x_input, y_input, &simulation_group]() mutable {

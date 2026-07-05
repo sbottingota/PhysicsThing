@@ -11,8 +11,8 @@ GUIRow::GUIRow(size_t n_components) {
 }
 
 void GUIRow::add_component(std::shared_ptr<GUIComponent> component, size_t idx) {
-    if (idx >= n_components) {
-        throw std::invalid_argument("Invalid index for adding component to GUIRow: expected 0 <= idx < " + std::to_string(n_components) + "but got index of: '" + std::to_string(idx) + "'.'");
+    if (idx >= components.size()) {
+        throw std::invalid_argument("Invalid index for adding component to GUIRow: expected 0 <= idx < " + std::to_string(components.size()) + "but got index of: '" + std::to_string(idx) + "'.'");
     }
 
     components[idx] = component;
@@ -21,21 +21,21 @@ void GUIRow::add_component(std::shared_ptr<GUIComponent> component, size_t idx) 
 }
 
 void GUIRow::set_bounds(Bounds bounds) {
-    bounds = bounds;
+    this->bounds = bounds;
     update_component_bounds();
 }
 
 void GUIRow::update_component_bounds() const {
     float padding = padding_proportion * bounds.width;
     
-    float component_width = (bounds.width - padding * (n_components+1)) / n_components; // padding at start, and after each component, hence n_components+1
-    float component_height = bounds.height - padding*2;
+    float component_width = (bounds.width - padding * (components.size()+1)) / components.size(); // padding at start, and after each component, hence components.size()+1
+    float component_height = bounds.height - padding;
 
-    for (size_t i = 0; i < n_components; ++i) {
+    for (size_t i = 0; i < components.size(); ++i) {
         if (components[i] == nullptr) continue;
 
         float component_x = bounds.x + component_width * i + padding * (i+1);
-        float component_y = bounds.y + padding;
+        float component_y = bounds.y + padding / 2;
 
         Bounds component_bounds(component_x, component_y, component_width, component_height);
         components[i]->set_bounds(component_bounds);
@@ -60,6 +60,17 @@ void GUIRow::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     }
 }
 
+std::optional<sf::Cursor::Type> GUIRow::mouse_type(float mouse_x, float mouse_y) const {
+    for (auto component : components) {
+        if (component->x() < mouse_x && mouse_x < component->x() + component->width()
+            && component->y() < mouse_y && mouse_y < component->y() + component->height()) {
+            return component->mouse_type();
+        }
+    }
+
+    return {};
+}
+
 GUI::GUI(unsigned int width, unsigned int height, std::string window_name) {
     gui_window = sf::RenderWindow(sf::VideoMode({width, height}), window_name,
         sf::Style::Titlebar | sf::Style::Close);
@@ -71,6 +82,13 @@ GUI::GUI(unsigned int width, unsigned int height, std::string window_name) {
 
 void GUI::add_row(GUIRow row) {
     rows.push_back(row);
+
+    auto [gui_width, gui_height] = gui_window.getSize();
+    float row_height = gui_height / rows.size();
+
+    for (size_t i = 0; i < rows.size(); ++i) {
+        rows[i].set_bounds(Bounds(0, i * row_height, gui_width, row_height));
+    }
 }
 
 void GUI::update(float dt) {
@@ -82,17 +100,16 @@ void GUI::update(float dt) {
 
         } else {
             if (const auto mouse_move = event->getIf<sf::Event::MouseMoved>()) {
-                int move_x = mouse_move->position.x;
-                int move_y = mouse_move->position.y;
+                int mouse_x = mouse_move->position.x;
+                int mouse_y = mouse_move->position.y;
 
-                // check whether the mouse has moved to within the bounds of a GUI element
+                // have the rows check whether the mouse has moved to within the bounds of a GUI element
                 // and change the look of the cursor correspondingly
-                /*
                 sf::Cursor::Type cursor_type = default_cursor_type;
-                for (auto component : components) {
-                    if (component->x < move_x && move_x < component->x + component->width
-                        && component->y < move_y && move_y < component->y + component->height) {
-                        cursor_type = component->mouse_type();
+                for (GUIRow row : rows) {
+                    if (auto type = row.mouse_type(mouse_x, mouse_y)) {
+                        cursor_type = *type;
+                        break;
                     }
                 }
 
@@ -100,7 +117,6 @@ void GUI::update(float dt) {
                 if (cursor.has_value()) {
                     gui_window.setMouseCursor(cursor.value());
                 }
-                */
             }
 
             for (GUIRow row : rows) {

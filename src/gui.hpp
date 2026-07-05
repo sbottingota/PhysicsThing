@@ -17,6 +17,8 @@ const sf::Color text_color = sf::Color::Black;
 const sf::Color fg_color(150, 150, 150); // gray
 const sf::Color interacted_color(80, 80, 80); // darker gray
 
+const sf::Cursor::Type default_cursor_type = sf::Cursor::Type::Arrow;
+
 const float border_thickness = 2;
 
 const float font_size_multiplier = 0.9; // proportion of the height of an object that text should take up
@@ -45,6 +47,8 @@ class GUIComponent : public sf::Drawable {
 
     float x() const { return bounds.x; }
     float y() const { return bounds.y; }
+    float width() const { return bounds.width; }
+    float height() const { return bounds.height; }
 };
 
 class Button : public GUIComponent {
@@ -72,13 +76,16 @@ class NumberInput : public GUIComponent {
     std::string text = "";
     bool in_focus = false;
 
+    sf::RectangleShape box;
+    sf::Text text_object = sf::Text(font);
+
     public:
     NumberInput() {}
 
     std::optional<float> get_number() const;
 
-    virtual void handle_event(const sf::Event &event) override;
     virtual void update(float dt) override;
+    virtual void handle_event(const sf::Event &event) override;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
@@ -97,7 +104,6 @@ class Label : public GUIComponent {
 class GUIRow : public sf::Drawable {
     static constexpr float padding_proportion = 0.1; // the portion of the width that each area of padding takes up
 
-    size_t n_components;
     std::vector<std::shared_ptr<GUIComponent>> components;
 
     Bounds bounds;
@@ -117,11 +123,11 @@ class GUIRow : public sf::Drawable {
     void handle_event(const sf::Event &event);
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
+    std::optional<sf::Cursor::Type> mouse_type(float mouse_x, float mouse_y) const;
 };
 
 class GUI {
-    static const sf::Cursor::Type default_cursor_type = sf::Cursor::Type::Arrow;
-
     sf::RenderWindow gui_window;
     std::vector<GUIRow> rows;
 
