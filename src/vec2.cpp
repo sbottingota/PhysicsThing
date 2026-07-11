@@ -67,6 +67,16 @@ Vec2 Vec2::reflected_over(Vec2 normal) const {
     return *this - 2 * dot(normal) * normal;
 }
 
+Pos2 Vec2::rotated(float angle, Pos2 center) const {
+    float sin_angle = std::sin(angle);
+    float cos_angle = std::cos(angle);
+
+    float new_x = (x - center.x) * cos_angle + (y - center.y) * sin_angle + center.x;
+    float new_y = -(x - center.x) * sin_angle + (y - center.y) * cos_angle + center.y;
+
+    return Pos2(new_x, new_y);
+}
+
 Pos2 Vec2::closest_point_on_line(Pos2 start, Vec2 direction) const {
     float t = (*this - start).dot(direction) / direction.length_squared();
 

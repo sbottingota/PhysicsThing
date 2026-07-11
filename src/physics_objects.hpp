@@ -13,9 +13,6 @@ class PhysicsObject : public sf::Drawable {
     Pos2 position;
     Vec2 velocity;
 
-    float angle = 0; // radians
-    float angular_velocity = 0; // radians per second
-
     const float mass;
 
     public:
@@ -93,7 +90,6 @@ class Line : public PhysicsObject {
 class Polygon : public PhysicsObject {
     std::vector<Pos2> vertices;
 
-    float angle = 0; // radians
     float angular_velocity = 0; // radians per second
 
     public:
@@ -103,6 +99,8 @@ class Polygon : public PhysicsObject {
     virtual void update(float dt);
 
     virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const override;
+
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 
 

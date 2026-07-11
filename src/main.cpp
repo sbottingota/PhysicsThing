@@ -18,10 +18,13 @@ int main() {
     sf::RenderWindow &gui_window = gui.get_render_window();
 
     // balls
-    group.add_object(std::make_shared<Circle>(Pos2(100, 100), Vec2(150, 150), 10, 50));
-    group.add_object(std::make_shared<Circle>(Pos2(WIDTH - 55, HEIGHT - 55), Vec2(-300, -75), 10, 50));
     group.add_object(std::make_shared<Circle>(Pos2(WIDTH / 2, HEIGHT / 3), Vec2(-50, -75), 5, 25));
     group.add_object(std::make_shared<Circle>(Pos2(WIDTH / 2, 75), Vec2(10, 90), 15, 75));
+
+    // polygons
+    group.add_object(std::make_shared<Polygon>(3, 100, Pos2(WIDTH * 3.0/4.0, HEIGHT / 3), Vec2(20, 50), 5));
+    group.add_object(std::make_shared<Polygon>(6, 50, Pos2(WIDTH * 3.0/4.0, HEIGHT * 2.0/3.0), Vec2(-10, -30), 10));
+    group.add_object(std::make_shared<Polygon>(std::vector({Pos2(10, 10), Pos2(10, 50), Pos2(50, 50), Pos2(50, 10)}), Vec2(20, 20), 10));
 
     // border
     group.add_object(std::make_shared<Line>(Pos2(0, 0), Pos2(0, HEIGHT)));

@@ -15,7 +15,6 @@ bool PhysicsObject::is_faced_by(const PhysicsObject &other) const {
 
 void PhysicsObject::update(float dt) { 
     position += dt * velocity;
-    angle += angular_velocity;
 }
 
 Pos2 PhysicsObject::get_position() const {

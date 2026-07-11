@@ -30,11 +30,25 @@ Polygon::Polygon(int n_vertices, int side_length, Pos2 center, Vec2 velocity, fl
 void Polygon::update(float dt) {
     PhysicsObject::update(dt);
 
-    angle += angular_velocity;
+    for (Pos2 &vertex : vertices) {
+        vertex = vertex.rotated(angular_velocity * dt, position);
+        vertex += velocity * dt;
+    }
 }
 
 // TODO: implement
 Vec2 Polygon::handle_collision(std::shared_ptr<PhysicsObject> other) const {
     return {0, 0};
+}
+
+void Polygon::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    sf::ConvexShape shape;
+    shape.setPointCount(vertices.size());
+
+    for (size_t i = 0; i < vertices.size(); ++i) {
+        shape.setPoint(i, {vertices[i].get_x(), vertices[i].get_y()});
+    }
+
+    target.draw(shape);
 }
 

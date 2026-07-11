@@ -66,6 +66,11 @@ void init_common_collision_checkers() {
         add_collision_checker<Circle, Line>(circle_collides_line);
         add_collision_checker<Line, Line>(lines_collide);
 
+        // N.B.: collisions involving polygons are not yet supported in this universe
+        add_collision_checker<Polygon, Polygon>([](const PhysicsObject&, const PhysicsObject&) { return false; });
+        add_collision_checker<Polygon, Circle>([](const PhysicsObject&, const PhysicsObject&) { return false; });
+        add_collision_checker<Polygon, Line>([](const PhysicsObject&, const PhysicsObject&) { return false; });
+
         init_finished = true;
     }
 }
