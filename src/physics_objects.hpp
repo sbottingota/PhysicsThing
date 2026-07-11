@@ -13,6 +13,9 @@ class PhysicsObject : public sf::Drawable {
     Pos2 position;
     Vec2 velocity;
 
+    float angle = 0; // radians
+    float angular_velocity = 0; // radians per second
+
     const float mass;
 
     public:
@@ -36,7 +39,7 @@ class PhysicsObject : public sf::Drawable {
     // for shapes A and B, returns true iff A is faced by B, and B is faced by A
     bool faces(const PhysicsObject &other) const;
 
-    virtual bool is_faced_by(const PhysicsObject &other) const = 0;
+    virtual bool is_faced_by(const PhysicsObject &other) const;
 
     virtual void draw_velocity(sf::RenderTarget &target, sf::RenderStates states) const;
 };
@@ -61,7 +64,6 @@ class Circle : public PhysicsObject {
     public:
     Circle(Pos2 position, Vec2 velocity, float mass, float radius);
 
-    virtual bool is_faced_by(const PhysicsObject &other) const override;
     virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const override;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
@@ -86,6 +88,21 @@ class Line : public PhysicsObject {
     Pos2 closest_point_to(Pos2 point) const;
 
     virtual bool is_faced_by(const PhysicsObject &other) const override;
+};
+
+class Polygon : public PhysicsObject {
+    std::vector<Pos2> vertices;
+
+    float angle = 0; // radians
+    float angular_velocity = 0; // radians per second
+
+    public:
+    Polygon(std::vector<Pos2> vertices, Vec2 velocity, float mass);
+    Polygon(int n_vertices, int side_length, Pos2 position, Vec2 velocity, float mass);
+
+    virtual void update(float dt);
+
+    virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const override;
 };
 
 

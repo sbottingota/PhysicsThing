@@ -6,8 +6,16 @@ bool PhysicsObject::faces(const PhysicsObject &other) const {
     return is_faced_by(other) || other.is_faced_by(*this);
 }
 
+bool PhysicsObject::is_faced_by(const PhysicsObject &other) const {
+    Pos2 relative_pos = position - other.get_position();
+    Vec2 relative_vel = other.get_velocity() - velocity;
+
+    return relative_pos.dot(relative_vel) > 0;
+}
+
 void PhysicsObject::update(float dt) { 
     position += dt * velocity;
+    angle += angular_velocity;
 }
 
 Pos2 PhysicsObject::get_position() const {

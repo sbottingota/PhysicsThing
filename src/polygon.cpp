@@ -1,0 +1,40 @@
+#include "physics_objects.hpp"
+
+#include <numeric>
+
+#define _USE_MATH_DEFINES
+#include <cmath>
+
+Pos2 calculate_center(std::vector<Pos2> vertices) {
+    // TODO: replace with a more correct way to find center (currently only accurate for regular polygons)
+    return std::accumulate(vertices.begin(), vertices.end(), Pos2(0, 0)) / vertices.size();
+}
+
+Polygon::Polygon(std::vector<Pos2> vertices, Vec2 velocity, float mass)
+    : PhysicsObject(calculate_center(vertices), velocity, mass), vertices(vertices) {}
+
+Polygon::Polygon(int n_vertices, int side_length, Pos2 center, Vec2 velocity, float mass)
+    : PhysicsObject(center, velocity, mass) {
+    vertices.reserve(n_vertices);
+
+    float circumradius = side_length / (2.0 * std::sin(M_PI / n_vertices));
+    float vertex_spacing = 2.0 * M_PI / n_vertices;
+
+    for (int i = 0; i < n_vertices; ++i) {
+        float vertex_angle = vertex_spacing * i;
+        vertices.push_back({center.get_x() + circumradius * std::cos(vertex_angle),
+            center.get_y() + circumradius * std::sin(vertex_angle)});
+    }
+}
+
+void Polygon::update(float dt) {
+    PhysicsObject::update(dt);
+
+    angle += angular_velocity;
+}
+
+// TODO: implement
+Vec2 Polygon::handle_collision(std::shared_ptr<PhysicsObject> other) const {
+    return {0, 0};
+}
+
