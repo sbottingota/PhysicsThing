@@ -2,6 +2,7 @@
 
 #include <utility>
 #include <typeindex>
+#include <algorithm>
 #include <iostream>
 #include <map>
 
@@ -58,6 +59,10 @@ bool lines_collide(const PhysicsObject &shape1, const PhysicsObject &shape2) {
     return false; // collision detection between lines is never needed
 }
 
+bool polygons_collide(const PhysicsObject &shape1, const PhysicsObject &shape2) {
+    return dynamic_cast<const Polygon&>(shape1).get_collision_point(dynamic_cast<const Polygon&>(shape2)).has_value();
+}
+
 void init_common_collision_checkers() {
     static bool init_finished = false;
 
@@ -66,8 +71,9 @@ void init_common_collision_checkers() {
         add_collision_checker<Circle, Line>(circle_collides_line);
         add_collision_checker<Line, Line>(lines_collide);
 
-        // N.B.: collisions involving polygons are not yet supported in this universe
-        add_collision_checker<Polygon, Polygon>([](const PhysicsObject&, const PhysicsObject&) { return false; });
+        add_collision_checker<Polygon, Polygon>(polygons_collide);
+
+        // N.B.: collisions involving polygons and other shapes are not yet supported in this universe
         add_collision_checker<Polygon, Circle>([](const PhysicsObject&, const PhysicsObject&) { return false; });
         add_collision_checker<Polygon, Line>([](const PhysicsObject&, const PhysicsObject&) { return false; });
 

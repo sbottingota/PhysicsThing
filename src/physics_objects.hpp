@@ -87,6 +87,8 @@ class Line : public PhysicsObject {
     virtual bool is_faced_by(const PhysicsObject &other) const override;
 };
 
+class Axis;
+
 class Polygon : public PhysicsObject {
     std::vector<Pos2> vertices;
 
@@ -101,8 +103,57 @@ class Polygon : public PhysicsObject {
     virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const override;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
+    std::vector<Axis> get_axes() const;
+
+    Pos2 get_vertex(int idx) const;
+    int get_vertex_count() const;
+
+    std::optional<Pos2> get_collision_point(const Polygon &other) const;
 };
 
+class Projection {
+    const float min, max;
+
+    public:
+    Projection(float min, float max) : min(min), max(max) {}
+
+    bool overlaps(Projection &other) const {
+        return std::max(min, other.min) <= std::min(max, other.max);
+    }
+};
+
+class Axis {
+    Pos2 start, end; // note that these points merely lie on the axis; they do not constrain it
+
+    public:
+    Axis(Pos2 start, Pos2 end) : start(start), end(end) {}
+
+    // axis normal to edge provided, passing through midpoint of edge
+    static Axis normal_to(Pos2 point1, Pos2 point2) {
+        Pos2 start = (point1 + point2) / 2;
+        Pos2 end = start + (point2 - point1).perp();
+
+        return Axis(start, end);
+    }
+
+    Projection project(const Polygon &shape) const {
+        float min = (end - start).dot(shape.get_vertex(0) - start);
+        float max = min;
+
+        for (int i = 0; i < shape.get_vertex_count(); ++i) {
+            float projected_len = (end - start).dot(shape.get_vertex(i) - start);
+
+            if (projected_len < min) {
+                min = projected_len;
+            } else if (projected_len > max) {
+                max = projected_len;
+            }
+        }
+
+        return Projection(min, max);
+    }
+};
 
 using CollisionChecker = bool (*)(const PhysicsObject&, const PhysicsObject&);
 

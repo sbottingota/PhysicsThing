@@ -35,9 +35,11 @@ class Vec2 {
 
     Vec2 reflected_over(Vec2 normal) const;
 
+    Vec2 perp() const;
+
     // angle in radians
     Pos2 rotated(float angle, Pos2 center) const;
-    
+
     // find the closest point to this point, on a line defined by its start point and its direction
     Pos2 closest_point_on_line(Pos2 start, Vec2 direction) const;
 

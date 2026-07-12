@@ -52,3 +52,45 @@ void Polygon::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(shape);
 }
 
+// returns axes which are normal to its edges
+std::vector<Axis> Polygon::get_axes() const {
+    std::vector<Axis> axes;
+    axes.reserve(vertices.size());
+    
+    for (size_t i = 0; i < vertices.size(); ++i) {
+        // add axes normal to all adjacent pairs of axes
+        axes.push_back(Axis::normal_to(vertices[i], vertices[(i+1) % vertices.size()]));
+    }
+
+    return axes;
+}
+
+Pos2 Polygon::get_vertex(int idx) const {
+    return vertices[idx];
+}
+
+int Polygon::get_vertex_count() const {
+    return vertices.size();
+}
+
+// using SAT collision checking
+std::optional<Pos2> Polygon::get_collision_point(const Polygon &other) const {
+    std::vector<Axis> axes = get_axes();
+    std::vector<Axis> other_axes = other.get_axes();
+
+    axes.reserve(axes.size() + other_axes.size());
+    axes.insert(axes.end(), other_axes.begin(), other_axes.end());
+
+    for (Axis &axis : axes) {
+        Projection projection1 = axis.project(*this);
+        Projection projection2 = axis.project(other);
+
+        if (!projection1.overlaps(projection2)) {
+            return {}; // no collision if projections do not overlap
+        }
+    }
+
+    return Pos2(0, 0); // TODO: add logic for finding collision point, rather than just whether collision occurs
+}
+
+
