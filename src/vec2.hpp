@@ -37,6 +37,8 @@ class Vec2 {
 
     Vec2 perp() const;
 
+    Vec2 normalized() const;
+
     // angle in radians
     Pos2 rotated(float angle, Pos2 center) const;
 

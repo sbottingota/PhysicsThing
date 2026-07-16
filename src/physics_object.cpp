@@ -29,6 +29,26 @@ void PhysicsObject::set_velocity(Vec2 new_velocity) {
     velocity = new_velocity;
 }
 
+// using SAT collision checking
+bool PhysicsObject::collides(const PhysicsObject &other) const {
+    std::vector<Axis> axes = get_axes(other);
+    std::vector<Axis> other_axes = other.get_axes(*this);
+
+    axes.reserve(axes.size() + other_axes.size());
+    axes.insert(axes.end(), other_axes.begin(), other_axes.end());
+
+    for (Axis &axis : axes) {
+        Projection projection1 = project(axis);
+        Projection projection2 = other.project(axis);
+
+        if (!projection1.overlaps(projection2)) {
+            return false; // no collision if projections do not overlap
+        }
+    }
+
+    return true;
+}
+
 void PhysicsObject::draw_velocity(sf::RenderTarget &target, sf::RenderStates states) const {
     // if velocity is 0, don't draw an arrow at all
     if (velocity.length() <= 1e-5) return;

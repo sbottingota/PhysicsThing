@@ -71,6 +71,10 @@ Vec2 Vec2::perp() const {
     return Vec2({y, -x});
 }
 
+Vec2 Vec2::normalized() const {
+    return *this / length();
+}
+
 Pos2 Vec2::rotated(float angle, Pos2 center) const {
     float sin_angle = std::sin(angle);
     float cos_angle = std::cos(angle);

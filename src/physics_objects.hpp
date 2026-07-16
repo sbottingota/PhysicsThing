@@ -2,9 +2,12 @@
 #define PHYSICS_OBJECTS_HPP
 
 #include <SFML/Graphics.hpp>
+
 #include <memory>
+#include <cfloat>
 
 #include "vec2.hpp"
+#include "collisions.hpp"
 
 #define ELASTICITY 1.0
 
@@ -31,7 +34,11 @@ class PhysicsObject : public sf::Drawable {
 
     void set_velocity(Vec2 new_velocity);
 
+    bool collides(const PhysicsObject &other) const;
     virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const = 0;
+
+    virtual std::vector<Axis> get_axes(const PhysicsObject &other) const = 0;
+    virtual Projection project(Axis axis) const = 0;
 
     // for shapes A and B, returns true iff A is faced by B, and B is faced by A
     bool faces(const PhysicsObject &other) const;
@@ -59,9 +66,13 @@ class Circle : public PhysicsObject {
     const float radius;
 
     public:
-    Circle(Pos2 position, Vec2 velocity, float mass, float radius);
+    Circle(Pos2 position, Vec2 velocity, float mass, float radius)
+        : PhysicsObject(position, velocity, mass), radius(radius) {}
 
     virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const override;
+
+    virtual std::vector<Axis> get_axes(const PhysicsObject &other) const override;
+    virtual Projection project(Axis axis) const override;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
@@ -74,11 +85,15 @@ class Line : public PhysicsObject {
     const Vec2 direction;
 
     public:
-    Line(Pos2 point1, Pos2 point2);
+    // set velocity and mass to placeholder values, since these don't apply to static lines
+    Line(Pos2 point1, Pos2 point2) : PhysicsObject(point1, {0, 0}, DBL_MAX), direction(point2 - point1) {}
 
     virtual void update(float dt) override {} // as lines are stationary, override update() to be a no-op
 
     virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const override;
+
+    virtual std::vector<Axis> get_axes(const PhysicsObject &other) const override;
+    virtual Projection project(Axis axis) const override;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
@@ -87,7 +102,6 @@ class Line : public PhysicsObject {
     virtual bool is_faced_by(const PhysicsObject &other) const override;
 };
 
-class Axis;
 
 class Polygon : public PhysicsObject {
     std::vector<Pos2> vertices;
@@ -104,65 +118,8 @@ class Polygon : public PhysicsObject {
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-    std::vector<Axis> get_axes() const;
-
-    Pos2 get_vertex(int idx) const;
-    int get_vertex_count() const;
-
-    std::optional<Pos2> get_collision_point(const Polygon &other) const;
+    virtual std::vector<Axis> get_axes(const PhysicsObject &other) const override;
+    virtual Projection project(Axis axis) const override;
 };
-
-class Projection {
-    const float min, max;
-
-    public:
-    Projection(float min, float max) : min(min), max(max) {}
-
-    bool overlaps(Projection &other) const {
-        return std::max(min, other.min) <= std::min(max, other.max);
-    }
-};
-
-class Axis {
-    Pos2 start, end; // note that these points merely lie on the axis; they do not constrain it
-
-    public:
-    Axis(Pos2 start, Pos2 end) : start(start), end(end) {}
-
-    // axis normal to edge provided, passing through midpoint of edge
-    static Axis normal_to(Pos2 point1, Pos2 point2) {
-        Pos2 start = (point1 + point2) / 2;
-        Pos2 end = start + (point2 - point1).perp();
-
-        return Axis(start, end);
-    }
-
-    Projection project(const Polygon &shape) const {
-        float min = (end - start).dot(shape.get_vertex(0) - start);
-        float max = min;
-
-        for (int i = 0; i < shape.get_vertex_count(); ++i) {
-            float projected_len = (end - start).dot(shape.get_vertex(i) - start);
-
-            if (projected_len < min) {
-                min = projected_len;
-            } else if (projected_len > max) {
-                max = projected_len;
-            }
-        }
-
-        return Projection(min, max);
-    }
-};
-
-using CollisionChecker = bool (*)(const PhysicsObject&, const PhysicsObject&);
-
-template<typename T1, typename T2>
-void add_collision_checker(CollisionChecker checker);
-
-bool collides(std::shared_ptr<PhysicsObject> object1, std::shared_ptr<PhysicsObject> object2);
-
-// initializes collision checkers between shapes defined in src/physics_objects.hpp
-void init_common_collision_checkers();
 
 #endif

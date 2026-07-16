@@ -5,11 +5,6 @@
 #include <typeinfo>
 
 
-Circle::Circle(Pos2 position, Vec2 velocity, float mass, float radius)
-    : PhysicsObject(position, velocity, mass), radius(radius) {
-    init_common_collision_checkers();
-}
-
 Vec2 Circle::handle_collision(std::shared_ptr<PhysicsObject> other) const {
     if (typeid(*other) == typeid(Circle)) {
         Circle &circle = static_cast<Circle&>(*other);
@@ -28,6 +23,20 @@ Vec2 Circle::handle_collision(std::shared_ptr<PhysicsObject> other) const {
 
     std::clog << "no collision-handling logic defined for '" << typeid(*this).name() << "' and '" << typeid(*other).name() << "'\n";
     std::exit(1);
+}
+
+std::vector<Axis> Circle::get_axes(const PhysicsObject &other) const {
+    return {Axis(position, other.get_position())};
+}
+
+Projection Circle::project(Axis axis) const {
+    Vec2 axis_vector = (axis.get_end() - axis.get_start()).normalized();
+    float center_projection = position.dot(axis_vector);
+
+    float min = center_projection - radius;
+    float max = center_projection + radius;
+
+    return Projection(min, max);
 }
 
 void Circle::draw(sf::RenderTarget &target, sf::RenderStates states) const {

@@ -15,7 +15,7 @@ void Group::update(float dt) const {
             auto object1 = objects[i];
             auto object2 = objects[j];
 
-            if (collides(object1, object2)) {
+            if (object1->collides(*object2)) {
                 Vec2 vel1 = object1->handle_collision(object2);
                 Vec2 vel2 = object2->handle_collision(object1);
 
