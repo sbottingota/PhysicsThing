@@ -29,24 +29,89 @@ void PhysicsObject::set_velocity(Vec2 new_velocity) {
     velocity = new_velocity;
 }
 
-// using SAT collision checking
+// modifies 'simplex' and 'direction', and returns whether the simplex contains the origin
+bool handle_simplex(std::vector<Pos2> &simplex, Vec2 &direction) {
+    if (simplex.size() == 1) {
+        direction = -simplex[0];
+        return false;
+
+    } else if (simplex.size() == 2) {
+        Pos2 point_a = simplex[1];
+        Pos2 point_b = simplex[0];
+
+        Vec2 ab = point_b - point_a;
+        Vec2 ao = -point_a;
+
+        if (ab.dot(ao) <= 0) {
+            simplex = {point_a};
+            direction = ao;
+        } else {
+            direction = triple_product(ab, ao, ab);
+        }
+
+        return false;
+
+    } else if (simplex.size() == 3) {
+        Pos2 point_a = simplex[2];
+        Pos2 point_b = simplex[1];
+        Pos2 point_c = simplex[0];
+
+        Vec2 ab = point_b - point_a;
+        Vec2 ac = point_c - point_a;
+        Vec2 ao = -point_a;
+
+        // test region outside AB
+        Vec2 normal_ab = ab.perp();
+        if (normal_ab.dot(ac) > 0) {
+            normal_ab = -normal_ab;
+        }
+
+        if (normal_ab.dot(ao) > 0) {
+            simplex = {point_a, point_b};
+            direction = triple_product(ab, ao, ab);
+            return false;
+        }
+
+        // test region outside AC
+        Vec2 normal_ac = ac.perp();
+        if (normal_ac.dot(ab) > 0) {
+            normal_ac = -normal_ac;
+        }
+
+        if (normal_ac.dot(ao) > 0) {
+            simplex = {point_a, point_c};
+            direction = triple_product(ac, ao, ac);
+            return false;
+        }
+
+        // origin lies inside triangle
+        return true;
+
+    } else {
+        // for 2D collision checking, the simplex shouldn't have more than 3 vertices
+        std::clog << "Simplex is expected to have between 1 and 3 (inclusive) vertices, but had " << simplex.size() << '\n';
+        std::exit(1);
+    }
+}
+
+// using GJK collision checking
 bool PhysicsObject::collides(const PhysicsObject &other) const {
-    std::vector<Axis> axes = get_axes(other);
-    std::vector<Axis> other_axes = other.get_axes(*this);
+    std::vector<Pos2> simplex;
+    Vec2 direction = other.position - position;
 
-    axes.reserve(axes.size() + other_axes.size());
-    axes.insert(axes.end(), other_axes.begin(), other_axes.end());
+    while (true) {
+        Pos2 minkowski_diff = support(direction) - other.support(-direction);
 
-    for (Axis &axis : axes) {
-        Projection projection1 = project(axis);
-        Projection projection2 = other.project(axis);
+        if (minkowski_diff.dot(direction) <= 0) {
+            return false;
+        }
 
-        if (!projection1.overlaps(projection2)) {
-            return false; // no collision if projections do not overlap
+        simplex.push_back(minkowski_diff);
+
+        if (handle_simplex(simplex, direction)) {
+            return true;
         }
     }
-
-    return true;
 }
 
 void PhysicsObject::draw_velocity(sf::RenderTarget &target, sf::RenderStates states) const {

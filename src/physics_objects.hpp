@@ -7,7 +7,6 @@
 #include <cfloat>
 
 #include "vec2.hpp"
-#include "collisions.hpp"
 
 #define ELASTICITY 1.0
 
@@ -37,8 +36,8 @@ class PhysicsObject : public sf::Drawable {
     bool collides(const PhysicsObject &other) const;
     virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const = 0;
 
-    virtual std::vector<Axis> get_axes(const PhysicsObject &other) const = 0;
-    virtual Projection project(Axis axis) const = 0;
+    // returns the point on the shape furthest in the given direction (used for GJK collision checking)
+    virtual Pos2 support(Vec2 direction) const = 0;
 
     // for shapes A and B, returns true iff A is faced by B, and B is faced by A
     bool faces(const PhysicsObject &other) const;
@@ -71,8 +70,7 @@ class Circle : public PhysicsObject {
 
     virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const override;
 
-    virtual std::vector<Axis> get_axes(const PhysicsObject &other) const override;
-    virtual Projection project(Axis axis) const override;
+    virtual Pos2 support(Vec2 direction) const override;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
@@ -92,8 +90,7 @@ class Line : public PhysicsObject {
 
     virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const override;
 
-    virtual std::vector<Axis> get_axes(const PhysicsObject &other) const override;
-    virtual Projection project(Axis axis) const override;
+    virtual Pos2 support(Vec2 direction) const override;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
@@ -118,8 +115,7 @@ class Polygon : public PhysicsObject {
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-    virtual std::vector<Axis> get_axes(const PhysicsObject &other) const override;
-    virtual Projection project(Axis axis) const override;
+    virtual Pos2 support(Vec2 direction) const override;
 };
 
 #endif

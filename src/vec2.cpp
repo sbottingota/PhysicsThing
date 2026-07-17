@@ -18,6 +18,10 @@ Vec2 Vec2::operator-(Vec2 other) const {
     return Vec2(x - other.x, y - other.y);
 }
 
+Vec2 Vec2::operator-() const {
+    return Vec2(-x, -y);
+}
+
 Vec2 Vec2::operator*(float n) const {
     return Vec2(n * x, n * y);
 }
@@ -48,6 +52,10 @@ void Vec2::operator/=(float n) {
 
 float Vec2::dot(Vec2 other) const {
     return x * other.x + y * other.y;
+}
+
+float Vec2::cross(Vec2 other) const {
+    return x * other.y - y * other.x;
 }
 
 float Vec2::length() const {
@@ -105,5 +113,9 @@ Pos2 Vec2::closest_point_on_line_clamped(Pos2 start, Vec2 direction) const {
 
 Vec2 operator*(float n, Vec2 vec) {
     return vec * n;
+}
+
+Vec2 triple_product(Vec2 a, Vec2 b, Vec2 c) {
+    return b * a.dot(c) - a * b.dot(c);
 }
 

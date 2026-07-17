@@ -25,18 +25,8 @@ Vec2 Circle::handle_collision(std::shared_ptr<PhysicsObject> other) const {
     std::exit(1);
 }
 
-std::vector<Axis> Circle::get_axes(const PhysicsObject &other) const {
-    return {Axis(position, other.get_position())};
-}
-
-Projection Circle::project(Axis axis) const {
-    Vec2 axis_vector = (axis.get_end() - axis.get_start()).normalized();
-    float center_projection = position.dot(axis_vector);
-
-    float min = center_projection - radius;
-    float max = center_projection + radius;
-
-    return Projection(min, max);
+Pos2 Circle::support(Vec2 direction) const {
+    return position + direction.normalized() * radius;
 }
 
 void Circle::draw(sf::RenderTarget &target, sf::RenderStates states) const {

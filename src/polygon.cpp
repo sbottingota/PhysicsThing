@@ -52,33 +52,15 @@ void Polygon::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(shape);
 }
 
-// returns axes which are normal to its edges
-std::vector<Axis> Polygon::get_axes(const PhysicsObject &other) const {
-    std::vector<Axis> axes;
-    axes.reserve(vertices.size());
-    
-    for (size_t i = 0; i < vertices.size(); ++i) {
-        // add axes normal to all adjacent pairs of axes
-        axes.push_back(Axis::normal_to(vertices[i], vertices[(i+1) % vertices.size()]));
-    }
+Pos2 Polygon::support(Vec2 direction) const {
+    Pos2 best_vertex = vertices[0];
 
-    return axes;
-}
-
-Projection Polygon::project(Axis axis) const {
-    float min = (axis.get_end() - axis.get_start()).dot(vertices[0] - axis.get_start());
-    float max = min;
-
-    for (size_t i = 0; i < vertices.size(); ++i) {
-        float projected_len = (axis.get_end() - axis.get_start()).dot(vertices[i] - axis.get_start());
-
-        if (projected_len < min) {
-            min = projected_len;
-        } else if (projected_len > max) {
-            max = projected_len;
+    for (Pos2 vertex : vertices) {
+        if (vertex.dot(direction) > best_vertex.dot(direction)) {
+            best_vertex = vertex;
         }
     }
 
-    return Projection(min, max);
+    return best_vertex;
 }
 

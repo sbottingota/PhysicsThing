@@ -17,6 +17,8 @@ class Vec2 {
     Vec2 operator+(Vec2 other) const;
     Vec2 operator-(Vec2 other) const;
 
+    Vec2 operator-() const;
+
     Vec2 operator*(float n) const;
     Vec2 operator/(float n) const;
 
@@ -27,6 +29,7 @@ class Vec2 {
     void operator/=(float n);
 
     float dot(Vec2 other) const;
+    float cross(Vec2 other) const;
 
     float length() const;
     float length_squared() const;
@@ -50,5 +53,7 @@ class Vec2 {
 };
 
 Vec2 operator*(float n, Vec2 vec);
+
+Vec2 triple_product(Vec2 a, Vec2 b, Vec2 c);
 
 #endif
