@@ -15,9 +15,9 @@ void Group::update(float dt) const {
             auto object1 = objects[i];
             auto object2 = objects[j];
 
-            if (object1->collides(*object2)) {
-                Vec2 vel1 = object1->handle_collision(object2);
-                Vec2 vel2 = object2->handle_collision(object1);
+            if (std::optional<CollisionResult> result = object1->collides(*object2)) {
+                Vec2 vel1 = object1->handle_collision(*object2, *result);
+                Vec2 vel2 = object2->handle_collision(*object1, *result);
 
                 object1->set_velocity(vel1);
                 object2->set_velocity(vel2);

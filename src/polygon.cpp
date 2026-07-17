@@ -37,7 +37,7 @@ void Polygon::update(float dt) {
 }
 
 // TODO: implement
-Vec2 Polygon::handle_collision(std::shared_ptr<PhysicsObject> other) const {
+Vec2 Polygon::handle_collision(const PhysicsObject &other, CollisionResult collision_result) const {
     return {0, 0};
 }
 

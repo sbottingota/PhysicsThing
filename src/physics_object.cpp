@@ -29,21 +29,33 @@ void PhysicsObject::set_velocity(Vec2 new_velocity) {
     velocity = new_velocity;
 }
 
+struct SupportPoint {
+    Pos2 point_a, point_b;
+    Pos2 minkowski;
+};
+
+SupportPoint minkowski_diff(const PhysicsObject &shape1, const PhysicsObject &shape2, Vec2 direction) {
+    Pos2 a = shape1.support(direction);
+    Pos2 b = shape2.support(-direction);
+
+    return {a, b, a - b};
+}
+
 // modifies 'simplex' and 'direction', and returns whether the simplex contains the origin
-bool handle_simplex(std::vector<Pos2> &simplex, Vec2 &direction) {
+bool handle_simplex(std::vector<SupportPoint> &simplex, Vec2 &direction) {
     if (simplex.size() == 1) {
-        direction = -simplex[0];
+        direction = -simplex[0].minkowski;
         return false;
 
     } else if (simplex.size() == 2) {
-        Pos2 point_a = simplex[1];
-        Pos2 point_b = simplex[0];
+        Pos2 point_a = simplex[1].minkowski;
+        Pos2 point_b = simplex[0].minkowski;
 
         Vec2 ab = point_b - point_a;
         Vec2 ao = -point_a;
 
         if (ab.dot(ao) <= 0) {
-            simplex = {point_a};
+            simplex = {simplex[1]};
             direction = ao;
         } else {
             direction = triple_product(ab, ao, ab);
@@ -52,9 +64,9 @@ bool handle_simplex(std::vector<Pos2> &simplex, Vec2 &direction) {
         return false;
 
     } else if (simplex.size() == 3) {
-        Pos2 point_a = simplex[2];
-        Pos2 point_b = simplex[1];
-        Pos2 point_c = simplex[0];
+        Pos2 point_a = simplex[2].minkowski;
+        Pos2 point_b = simplex[1].minkowski;
+        Pos2 point_c = simplex[0].minkowski;
 
         Vec2 ab = point_b - point_a;
         Vec2 ac = point_c - point_a;
@@ -67,7 +79,7 @@ bool handle_simplex(std::vector<Pos2> &simplex, Vec2 &direction) {
         }
 
         if (normal_ab.dot(ao) > 0) {
-            simplex = {point_a, point_b};
+            simplex = {simplex[2], simplex[1]};
             direction = triple_product(ab, ao, ab);
             return false;
         }
@@ -79,7 +91,7 @@ bool handle_simplex(std::vector<Pos2> &simplex, Vec2 &direction) {
         }
 
         if (normal_ac.dot(ao) > 0) {
-            simplex = {point_a, point_c};
+            simplex = {simplex[2], simplex[0]};
             direction = triple_product(ac, ao, ac);
             return false;
         }
@@ -94,22 +106,71 @@ bool handle_simplex(std::vector<Pos2> &simplex, Vec2 &direction) {
     }
 }
 
+struct Edge {
+    int index;
+    Vec2 normal;
+    float distance;
+
+    Edge() : index(0), normal(Vec2(0, 0)), distance(std::numeric_limits<float>::max()) {} // init dummy values
+
+    static Edge find_closest(const std::vector<SupportPoint> &polytope) {
+        Edge closest;
+
+        for (size_t i = 0; i < polytope.size(); ++i) {
+            Vec2 a = polytope[i].minkowski;
+            Vec2 b = polytope[(i+1) % polytope.size()].minkowski;
+
+            Vec2 normal = (b - a).perp().normalized();
+            float distance = normal.dot(a);
+            if (distance < 0) {
+                normal = -normal;
+                distance = -distance;
+            }
+
+            if (distance < closest.distance) {
+                closest.index = i;
+                closest.normal = normal;
+                closest.distance = distance;
+            }
+        }
+
+        return closest;
+    }
+};
+
+// EPA to determine collision normal and penetration
+CollisionResult get_collision_result(const PhysicsObject &shape1, const PhysicsObject &shape2, std::vector<SupportPoint> polytope) {
+    const float tolerance = 1e-3;
+
+    while (true) {
+        Edge closest = Edge::find_closest(polytope);
+        SupportPoint point = minkowski_diff(shape1, shape2, closest.normal);
+
+        float distance = point.minkowski.dot(closest.normal);
+        if (distance - closest.distance < tolerance) {
+            return {closest.normal, distance};
+        }
+
+        polytope.insert(polytope.begin() + closest.index + 1, point);
+    }
+}
+
 // using GJK collision checking
-bool PhysicsObject::collides(const PhysicsObject &other) const {
-    std::vector<Pos2> simplex;
+std::optional<CollisionResult> PhysicsObject::collides(const PhysicsObject &other) const {
+    std::vector<SupportPoint> simplex;
     Vec2 direction = other.position - position;
 
     while (true) {
-        Pos2 minkowski_diff = support(direction) - other.support(-direction);
+        SupportPoint support_point = minkowski_diff(*this, other, direction);
 
-        if (minkowski_diff.dot(direction) <= 0) {
-            return false;
+        if (support_point.minkowski.dot(direction) <= 0) {
+            return {};
         }
 
-        simplex.push_back(minkowski_diff);
+        simplex.push_back(support_point);
 
         if (handle_simplex(simplex, direction)) {
-            return true;
+            return get_collision_result(*this, other, simplex);
         }
     }
 }

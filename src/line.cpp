@@ -4,7 +4,7 @@
 #include <iostream>
 
 // lines are fixed in space, so a no-op
-Vec2 Line::handle_collision(std::shared_ptr<PhysicsObject> other) const {
+Vec2 Line::handle_collision(const PhysicsObject &other, CollisionResult collision_result) const {
     return {0, 0};
 }
 

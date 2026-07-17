@@ -5,23 +5,23 @@
 #include <typeinfo>
 
 
-Vec2 Circle::handle_collision(std::shared_ptr<PhysicsObject> other) const {
-    if (typeid(*other) == typeid(Circle)) {
-        Circle &circle = static_cast<Circle&>(*other);
+Vec2 Circle::handle_collision(const PhysicsObject &other, CollisionResult collision_result) const {
+    if (typeid(other) == typeid(Circle)) {
+        const Circle &circle = static_cast<const Circle&>(other);
 
         // taken from here: https://en.wikipedia.org/wiki/Elastic_collision#Two-dimensional_collision_with_two_moving_objects
         float a = ((1 + ELASTICITY) * circle.mass) / (mass + circle.mass);
         float b = (velocity - circle.velocity).dot(position - circle.position) / (position - circle.position).length_squared();
 
         return velocity - a * b * (position - circle.position);
-    } else if (typeid(*other) == typeid(Line)) {
-        Line &line = static_cast<Line&>(*other);
+    } else if (typeid(other) == typeid(Line)) {
+        const Line &line = static_cast<const Line&>(other);
 
         Pos2 contact = line.closest_point_to(position);
         return ELASTICITY * velocity.reflected_over(position - contact);
     }
 
-    std::clog << "no collision-handling logic defined for '" << typeid(*this).name() << "' and '" << typeid(*other).name() << "'\n";
+    std::clog << "no collision-handling logic defined for '" << typeid(*this).name() << "' and '" << typeid(other).name() << "'\n";
     std::exit(1);
 }
 

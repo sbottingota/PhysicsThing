@@ -5,10 +5,16 @@
 
 #include <memory>
 #include <cfloat>
+#include <limits>
 
 #include "vec2.hpp"
 
 #define ELASTICITY 1.0
+
+struct CollisionResult {
+    Vec2 normal;
+    float penetration;
+};
 
 class PhysicsObject : public sf::Drawable {
     protected:
@@ -33,8 +39,8 @@ class PhysicsObject : public sf::Drawable {
 
     void set_velocity(Vec2 new_velocity);
 
-    bool collides(const PhysicsObject &other) const;
-    virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const = 0;
+    std::optional<CollisionResult> collides(const PhysicsObject &other) const;
+    virtual Vec2 handle_collision(const PhysicsObject &other, CollisionResult collision_result) const = 0;
 
     // returns the point on the shape furthest in the given direction (used for GJK collision checking)
     virtual Pos2 support(Vec2 direction) const = 0;
@@ -68,7 +74,7 @@ class Circle : public PhysicsObject {
     Circle(Pos2 position, Vec2 velocity, float mass, float radius)
         : PhysicsObject(position, velocity, mass), radius(radius) {}
 
-    virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const override;
+    virtual Vec2 handle_collision(const PhysicsObject &other, CollisionResult collision_result) const override;
 
     virtual Pos2 support(Vec2 direction) const override;
 
@@ -84,11 +90,11 @@ class Line : public PhysicsObject {
 
     public:
     // set velocity and mass to placeholder values, since these don't apply to static lines
-    Line(Pos2 point1, Pos2 point2) : PhysicsObject(point1, {0, 0}, DBL_MAX), direction(point2 - point1) {}
+    Line(Pos2 point1, Pos2 point2) : PhysicsObject(point1, {0, 0}, std::numeric_limits<float>::max()), direction(point2 - point1) {}
 
     virtual void update(float dt) override {} // as lines are stationary, override update() to be a no-op
 
-    virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const override;
+    virtual Vec2 handle_collision(const PhysicsObject &other, CollisionResult collision_result) const override;
 
     virtual Pos2 support(Vec2 direction) const override;
 
@@ -111,7 +117,7 @@ class Polygon : public PhysicsObject {
 
     virtual void update(float dt);
 
-    virtual Vec2 handle_collision(std::shared_ptr<PhysicsObject> other) const override;
+    virtual Vec2 handle_collision(const PhysicsObject &other, CollisionResult collision_result) const override;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
